@@ -1,0 +1,16 @@
+const express = require('express');
+const router = express.Router();
+const deliveryController = require('../controllers/delivery_controller');
+
+router.post('/', deliveryController.createDelivery);
+router.get('/', deliveryController.getDeliveries);
+router.get('/:id', deliveryController.getDeliveryById);
+router.get('/order/:id', deliveryController.getDeliveryByOrderId);
+router.get('/partner/:id', deliveryController.getDeliveryByPartnerId);
+router.put('/delivery/processing/:id', deliveryController.processingDelivery);
+router.put('/delivery/out-for-delivery/:id', deliveryController.outforDelivery);
+router.put('/delivery/complete/:id', deliveryController.completeDelivery);
+router.put('/:id', deliveryController.updateDelivery);
+router.delete('/:id', deliveryController.deleteDelivery);
+
+module.exports = router;

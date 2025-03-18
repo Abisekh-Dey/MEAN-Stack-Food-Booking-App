@@ -39,7 +39,7 @@ app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/reviews', reviewRoutes);    
 app.use('/api/ratings', ratingRoutes); 
 
-import axios from "axios"; // Ensure axios is installed
+const axios = require("axios"); // Ensure axios is installed
 
 const url = "https://mean-stack-food-booking-app.onrender.com"; // Replace with your Render backend URL
 const interval = 30000; // Ping every 30 seconds

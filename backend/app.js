@@ -39,6 +39,21 @@ app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/reviews', reviewRoutes);    
 app.use('/api/ratings', ratingRoutes); 
 
+import axios from "axios"; // Ensure axios is installed
+
+const url = "https://mean-stack-food-booking-app.onrender.com"; // Replace with your Render backend URL
+const interval = 30000; // Ping every 30 seconds
+
+function keepAlive() {
+  axios
+    .get(url)
+    .then(() => console.log("Server pinged successfully"))
+    .catch((error) => console.error(`Error: ${error.message}`));
+}
+
+setInterval(keepAlive, interval); // Automatically pings every 30 seconds
+
+
 // Connect to MongoDB
 mongoose
   .connect(process.env.MONGO_URI)

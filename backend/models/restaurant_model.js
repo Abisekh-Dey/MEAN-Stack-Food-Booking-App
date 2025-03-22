@@ -21,6 +21,7 @@ const restaurantSchema = new Schema({
     closing_time: { type: String, required: true },
     closing_day: { type: String, enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'None'], default: 'None' },
     isApproved: { type: String, default: "false" },
+    closeRestaurant: { type: Boolean, default: false},
     image_number: { type: Number, default:0}
 }, { timestamps: true });
 

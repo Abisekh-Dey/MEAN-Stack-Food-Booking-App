@@ -264,7 +264,7 @@ exports.approveRestaurant = async (req, res) => {
 // Close Restaurant
 exports.colseRestaurant = async(req, res) => {
     try {
-        const closeNow = await Restaurant.findByIdAndUpdate(req.params.id);
+        const closeNow = await Restaurant.findByIdAndUpdate(req.params.id,{ closeRestaurant: false },{ new: true });
         if (!closeNow) return res.status(404).json({message: 'Restaurant not found' });
         res.status(200).json({ message: 'Restaurant closed' });
     } catch (error) {
@@ -275,7 +275,7 @@ exports.colseRestaurant = async(req, res) => {
 // Re-open Restaurant
 exports.reOpenRestaurant = async(req, res) => {
     try {
-        const reOpenNow = await Restaurant.findByIdAndUpdate(req.params.id);
+        const reOpenNow = await Restaurant.findByIdAndUpdate(req.params.id,{ closeRestaurant: true },{ new: true });
         if (!reOpenNow) return res.status(404).json({message: 'Restaurant not found' });
         res.status(200).json({ message: 'Restaurant Re-Opened' });
     } catch (error) {

@@ -262,7 +262,7 @@ exports.approveRestaurant = async (req, res) => {
 };
 
 // Close Restaurant
-exports.colseRestaurant = async(req, res) => {
+exports.closeRestaurant = async(req, res) => {
     try {
         const closeNow = await Restaurant.findByIdAndUpdate(req.params.id,{ closeRestaurant: false },{ new: true });
         if (!closeNow) return res.status(404).json({message: 'Restaurant not found' });

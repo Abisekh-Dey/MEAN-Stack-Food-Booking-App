@@ -36,6 +36,7 @@ router.put('/:id/update-details', restaurantController.updateRestaurantDetails);
 router.put('/approved/:id', restaurantController.approveRestaurant);
 router.patch("/:id/change-name", restaurantController.changeRestaurantName);
 router.patch("/:id/close-restaurant", restaurantController.colseRestaurant);
+router.patch("/:id/reopen-restaurant", restaurantController.colseRestaurant);
 router.patch("/:id/change-password", restaurantController.changeRestaurantPassword);
 router.patch("/:id/change-address", restaurantController.changeRestaurantAddress);
 // router.patch("/:id/add-images", restaurantController.addImagesToRestaurant);

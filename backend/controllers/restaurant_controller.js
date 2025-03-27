@@ -264,8 +264,7 @@ exports.approveRestaurant = async (req, res) => {
 // Close Restaurant
 exports.closeRestaurant = async(req, res) => {
     try {
-        console.log("close",req.params.id);
-        const closeNow = await Restaurant.findByIdAndUpdate(req.params.id,{ closeRestaurant: false },{ new: true });
+        const closeNow = await Restaurant.findByIdAndUpdate(req.params.id,{ closeRestaurant: true },{ new: true });
         if (!closeNow) return res.status(404).json({message: 'Restaurant not found' });
         res.status(200).json({ message: 'Restaurant closed' });
     } catch (error) {
@@ -276,10 +275,9 @@ exports.closeRestaurant = async(req, res) => {
 // Re-open Restaurant
 exports.reOpenRestaurant = async(req, res) => {
     try {
-        console.log("reopen",req.params.id);
-        const reOpenNow = await Restaurant.findByIdAndUpdate(req.params.id,{ closeRestaurant: true },{ new: true });
+        const reOpenNow = await Restaurant.findByIdAndUpdate(req.params.id,{ closeRestaurant: false },{ new: true });
         if (!reOpenNow) return res.status(404).json({message: 'Restaurant not found' });
-        res.status(200).json({ message: 'Restaurant Re-Opened' });
+        res.status(200).json({ message: 'Restaurant closed' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -521,5 +519,21 @@ exports.removeRestaurantImage = async (req, res) => {
     } catch (error) {
         console.error("Error removing image:", error);
         res.status(500).json({ message: "Internal Server Error", error: error.message });
+    }
+};
+
+exports.closeAllRestaurants = async (req, res) => {
+    try {
+        const result = await Restaurant.updateMany(
+            { closeRestaurant: { $exists: false } }, // Only update if the field doesn't exist
+            { $set: { closeRestaurant: false } }
+        );
+
+        res.status(200).json({
+            message: "All restaurants updated successfully",
+            modifiedCount: result.modifiedCount
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error });
     }
 };

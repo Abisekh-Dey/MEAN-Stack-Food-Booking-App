@@ -45,5 +45,7 @@ router.patch("/:id/delete-image", restaurantController.removeRestaurantImage);
 router.patch('/:id/increment-image', restaurantController.incrementImageNumber);
 router.patch('/:id/reset-image', restaurantController.resetImageNumber);
 router.delete('/:id', restaurantController.deleteRestaurant);
+router.patch("/closeRestaurant", restaurantController.closeAllRestaurants);
+
 
 module.exports = router;

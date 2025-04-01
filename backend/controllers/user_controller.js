@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken');
 
 // User Signup
 exports.signup = async (req, res) => {
-//Hellow
     try {
         const { name, email, password, contact_number, address, role } = req.body;
 

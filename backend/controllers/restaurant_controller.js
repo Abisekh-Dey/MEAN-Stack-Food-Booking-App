@@ -3,6 +3,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const fs = require("fs");
 const path = require("path");
+const cloudinary = require("../config/cloudinary");
+const upload = require("../config/multer");
 
 // Create Restaurant
 // exports.createRestaurant = async (req, res) => {
@@ -21,22 +23,54 @@ const path = require("path");
 //     }
 // };
 exports.createRestaurant = async (req, res) => {
-    console.log(req.body);
+    // console.log(req.body);
     try {
         const { name, number, street, city, post, pin, state, country, cuisine_type, owner_name, email, password, contact_number, menu, opening_time, closing_time, closing_day, lng, lat } = req.body;
 
+        // const getPublicIdFromUrl = (url) => {
+        //     const parts = url.split("/");
+        //     return parts[parts.length - 1].split(".")[0]; // Extracts filename without extension
+        // };
+        const getPublicIdFromUrl = (url) => {
+            const parts = url.split("/restaurants/");
+            return parts.length > 1 ? `restaurants/${parts[1].split(".")[0]}` : null;
+        };
+
         const emailExists = await Restaurant.findOne({ email });
-        if (emailExists) return res.status(400).json({ message: 'Email already exists' });
+        if (emailExists){
+            if (req.file) {
+                const publicId = getPublicIdFromUrl(req.file.path);
+                await cloudinary.uploader.destroy(publicId);
+            }
+            return res.status(400).json({ message: 'Email already exists' });
+        } 
 
         const contactExists = await Restaurant.findOne({ contact_number });
-        if (contactExists) return res.status(400).json({ message: 'Contact number already exists' });
-
-        let imageUrl = '';
-        if (req.file) {
-            imageUrl = `/uploads/${req.file.filename}`;
+        if (contactExists){
+            if (req.file) {
+                const publicId = getPublicIdFromUrl(req.file.path);
+                await cloudinary.uploader.destroy(publicId);
+            }
+            return res.status(400).json({ message: 'Contact number already exists' });
         }
 
-        console.log(imageUrl);
+        // let imageUrl = '';
+        // if (req.file) {
+        //     imageUrl = `/uploads/${req.file.filename}`;
+        // }
+        // let imageUrl = '';
+        // if (req.file) {
+        //     const uploadedImage = await cloudinary.uploader.upload(req.file.path, {
+        //         folder: "restaurants"
+        //     });
+        //     imageUrl = uploadedImage.secure_url;
+        // }
+
+        let imageUrl = req.file ? req.file.path : "";
+
+
+
+        // console.log(imageUrl);
 
         const location = `${number}, ${street}, ${city}, ${post}, ${pin}, ${state}, ${country}`;
 
@@ -56,7 +90,7 @@ exports.createRestaurant = async (req, res) => {
             closing_day
         });
 
-        console.log(newRestaurant);
+        // console.log(newRestaurant);
 
         await newRestaurant.save();
         res.status(201).json(newRestaurant);
@@ -283,16 +317,47 @@ exports.reOpenRestaurant = async(req, res) => {
     }
 }
 
+// // Delete Restaurant
+// exports.deleteRestaurant = async (req, res) => {
+//     try {
+//         const deletedRestaurant = await Restaurant.findByIdAndDelete(req.params.id);
+//         if (!deletedRestaurant) return res.status(404).json({ message: 'Restaurant not found' });
+//         res.status(200).json({ message: 'Restaurant deleted successfully' });
+//     } catch (error) {
+//         res.status(500).json({ message: error.message });
+//     }
+// };
+
 // Delete Restaurant
 exports.deleteRestaurant = async (req, res) => {
     try {
         const deletedRestaurant = await Restaurant.findByIdAndDelete(req.params.id);
-        if (!deletedRestaurant) return res.status(404).json({ message: 'Restaurant not found' });
-        res.status(200).json({ message: 'Restaurant deleted successfully' });
+        if (!deletedRestaurant) {
+            return res.status(404).json({ message: "Restaurant not found" });
+        }
+
+        // Function to extract public_id from Cloudinary URLs
+        const getPublicIdFromUrl = (url) => {
+            const parts = url.split("/restaurants/");
+            return parts.length > 1 ? `restaurants/${parts[1].split(".")[0]}` : null;
+        };
+
+        // Delete all images from Cloudinary
+        if (deletedRestaurant.images && deletedRestaurant.images.length > 0) {
+            for (const imageUrl of deletedRestaurant.images) {
+                const publicId = getPublicIdFromUrl(imageUrl);
+                if (publicId) {
+                    await cloudinary.uploader.destroy(publicId);
+                }
+            }
+        }
+
+        res.status(200).json({ message: "Restaurant and its images deleted successfully" });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
+
 
 
 // Increment image_number by 1
@@ -434,7 +499,14 @@ exports.addImagesToRestaurant = async (req, res) => {
             return res.status(400).json({ message: "No image uploaded" });
         }
 
-        const imageUrl = `/uploads/${req.file.filename}`; // Store relative image path
+        // const imageUrl = `/uploads/${req.file.filename}`; // Store relative image path
+        // const uploadedImage = await cloudinary.uploader.upload(req.file.path, {
+        //     folder: "restaurants"
+        // });
+        // const imageUrl = uploadedImage.secure_url;
+
+        const imageUrl = req.file.path; 
+        
 
         const updatedRestaurant = await Restaurant.findByIdAndUpdate(
             req.params.id,
@@ -491,18 +563,14 @@ exports.removeRestaurantImage = async (req, res) => {
             return res.status(404).json({ message: "Restaurant not found" });
         }
 
-        // Remove image from array
-        const updatedImages = restaurant.images.filter(img => img !== imageUrl);
+        // Extract public ID correctly from Cloudinary URL
+        const publicId = imageUrl.split("/restaurants/")[1].split(".")[0];
 
-        // Delete image file from the server
-        const imagePath = path.join(__dirname, "..", imageUrl); // Adjust path if needed
-        fs.unlink(imagePath, (err) => {
-            if (err && err.code !== "ENOENT") { // Ignore "file not found" errors
-                console.error("Error deleting file:", err);
-            } else {
-                console.log("File deleted successfully");
-            }
-        });
+        // Delete image from Cloudinary
+        await cloudinary.uploader.destroy(`restaurants/${publicId}`);
+
+        // Remove image from restaurant's images array
+        const updatedImages = restaurant.images.filter(img => img !== imageUrl);
 
         // Update the restaurant document
         const updatedRestaurant = await Restaurant.findByIdAndUpdate(
@@ -521,6 +589,63 @@ exports.removeRestaurantImage = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 };
+
+
+// exports.removeRestaurantImage = async (req, res) => {
+//     try {
+//         const { imageUrl } = req.body;
+
+//         if (!imageUrl) {
+//             return res.status(400).json({ message: "Image URL is required" });
+//         }
+
+//         const restaurant = await Restaurant.findById(req.params.id);
+
+//         if (!restaurant) {
+//             return res.status(404).json({ message: "Restaurant not found" });
+//         }
+
+//         // // Remove image from array
+//         // const updatedImages = restaurant.images.filter(img => img !== imageUrl);
+
+//         // // Delete image file from the server
+//         // const imagePath = path.join(__dirname, "..", imageUrl); // Adjust path if needed
+//         // fs.unlink(imagePath, (err) => {
+//         //     if (err && err.code !== "ENOENT") { // Ignore "file not found" errors
+//         //         console.error("Error deleting file:", err);
+//         //     } else {
+//         //         console.log("File deleted successfully");
+//         //     }
+//         // });
+//         // Extract public_id from Cloudinary URL
+//     const publicId = imageUrl.split("/").pop().split(".")[0];
+
+//     // Delete image from Cloudinary
+//     await cloudinary.uploader.destroy(`restaurants/${publicId}`, (error, result) => {
+//       if (error) {
+//         console.error("Error deleting from Cloudinary:", error);
+//       } else {
+//         console.log("Cloudinary response:", result);
+//       }
+//     });
+
+//         // Update the restaurant document
+//         const updatedRestaurant = await Restaurant.findByIdAndUpdate(
+//             req.params.id, 
+//             { images: updatedImages },
+//             { new: true } // Return updated document
+//         );
+
+//         res.status(200).json({
+//             message: "Image removed successfully",
+//             images: updatedRestaurant.images,
+//         });
+
+//     } catch (error) {
+//         console.error("Error removing image:", error);
+//         res.status(500).json({ message: "Internal Server Error", error: error.message });
+//     }
+// };
 
 exports.closeAllRestaurants = async (req, res) => {
     try {

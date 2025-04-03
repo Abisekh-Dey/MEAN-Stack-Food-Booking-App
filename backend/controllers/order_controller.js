@@ -24,13 +24,28 @@ exports.getOrders = async (req, res) => {
 // Get Order by ID
 exports.getOrderById = async (req, res) => {
     try {
-        const order = await Order.findById(req.params.id).populate('user_id restaurant_id menu_items.menu_item_id');
+        const order = await Order.findById(req.params.id).populate('user_id menu_items.menu_item_id');
         if (!order) return res.status(404).json({ message: 'Order not found' });
         res.status(200).json(order);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
+
+// Get Orders by User ID
+exports.getOrdersByUserId = async (req, res) => {
+    try {
+        const orders = await Order.find({ user_id: req.params.id })
+            .populate('menu_items.menu_item_id'); // Populate related data
+
+        if (!orders.length) return res.status(404).json({ message: 'No orders found for this user' });
+
+        res.status(200).json(orders);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 
 // Update Order
 exports.updateOrder = async (req, res) => {

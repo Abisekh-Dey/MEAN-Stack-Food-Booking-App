@@ -2,7 +2,7 @@ const Cart = require('../models/cart_model');
 const MenuItem = require('../models/menuitem_model');
 
 exports.addToCart = async (req, res) => {
-  const { userId, menuItemId, quantity } = req.body;
+  const { userId, menuItemId, quantity, totalPrice } = req.body;
 
   try {
     const menuItem = await MenuItem.findById(menuItemId);
@@ -15,7 +15,7 @@ exports.addToCart = async (req, res) => {
       user: userId,
       menuItem: menuItemId,
       quantity: quantity,
-      totalPrice: menuItem.price
+      totalPrice: totalPrice
     });
 
     await cart.save();
@@ -148,6 +148,21 @@ exports.decreaseQuantity = async (req, res) => {
 
   } catch (err) {
     return res.status(500).json({ error: err.message });
+  }
+};
+
+exports.deleteCartByUserId = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const deletedItems = await Cart.deleteMany({ user: userId });
+
+    if (!deletedItems) {
+      return res.status(404).json({ message: "Cart item not found" });
+    }
+
+    res.status(200).json({ message: "All cart items deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
 

@@ -34,6 +34,7 @@ exports.getOrderById = async (req, res) => {
 
 // Get Orders by User ID
 exports.getOrdersByUserId = async (req, res) => {
+    console.log(req.params.id)
     try {
         const orders = await Order.find({ user_id: req.params.id })
             .populate('menu_items.menu_item_id'); // Populate related data

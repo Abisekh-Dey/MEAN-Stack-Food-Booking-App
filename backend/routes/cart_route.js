@@ -8,6 +8,7 @@ router.put('/', cartController.updateCartItem);
 router.delete('/:userId', cartController.clearCart);
 router.put('/increaseQuantity', cartController.increaseQuantity);
 router.put('/decreaseQuantity', cartController.decreaseQuantity);
+router.delete('/:userId', cartController.deleteCartByUserId);
 router.delete('/delete/:id', cartController.deleteCartById);
 
 module.exports = router;

@@ -23,13 +23,14 @@ exports.createPayment = async (req, res) => {
         // Update the payment_status in the Oder model
         const updatedOrder = await Order.findByIdAndUpdate(
             orderId,
-            { order_status: "processing", payment_status: 'completed' },
+            { order_status: "preparing", payment_status: 'completed' },
             { new: true } // Return the updated document
         );
 
         if (!updatedOrder) {
             return res.status(404).json({ message: 'Order not found.' });
         }
+
         res.status(201).json({
             payment: newPayment,
             order: updatedOrder,

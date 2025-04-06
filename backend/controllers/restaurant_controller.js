@@ -206,14 +206,18 @@ exports.estimateDeliveryTime = (req, res) => {
     try {
         const { distance } = req.body;
 
-        if (!distance) {
-            return res.status(400).json({ message: "Distance is required" });
-        }
+        // if (!distance) {
+        //     return res.status(400).json({ message: "Distance is required" });
+        // }
 
         const speed = 40; // Average delivery speed in km/h
-        const estimatedTime = (distance / speed) * 60; // Time in minutes
-
-        res.json({ success: true, estimatedTime: `${Math.ceil(estimatedTime)} minutes` });
+        if(distance===0){
+            res.json({ success: true, estimatedTime: `0 minutes` });
+        }
+        else{
+            const estimatedTime = (distance / speed) * 60; // Time in minutes
+            res.json({ success: true, estimatedTime: `${Math.ceil(estimatedTime)} minutes` });
+        }
     } catch (error) {
         console.error("Error estimating delivery time:", error);
         res.status(500).json({ message: "Server Error" });

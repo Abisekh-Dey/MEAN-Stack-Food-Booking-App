@@ -15,6 +15,7 @@ const cartRoutes = require('./routes/cart_route');
 const wishlistRoutes = require('./routes/wishlist_route');  
 const reviewRoutes = require('./routes/review_route');    
 const ratingRoutes = require('./routes/rating_route'); 
+const menuwishlistRoutes = require('./routes/menu_wishlist_route');
 
 const app = express();
 
@@ -35,7 +36,8 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/deliveries', deliveryRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/cart', cartRoutes);
-app.use('/api/wishlist', wishlistRoutes);  
+app.use('/api/wishlist', wishlistRoutes); 
+app.use('/api/menu-wishlist', menuwishlistRoutes);   
 app.use('/api/reviews', reviewRoutes);    
 app.use('/api/ratings', ratingRoutes); 
 

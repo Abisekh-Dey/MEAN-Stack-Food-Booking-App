@@ -16,6 +16,7 @@ const wishlistRoutes = require('./routes/wishlist_route');
 const reviewRoutes = require('./routes/review_route');    
 const ratingRoutes = require('./routes/rating_route'); 
 const menuwishlistRoutes = require('./routes/menu_wishlist_route');
+const trendingRoutes = require('./routes/trending_route');
 
 const app = express();
 
@@ -40,6 +41,7 @@ app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/menu-wishlist', menuwishlistRoutes);   
 app.use('/api/reviews', reviewRoutes);    
 app.use('/api/ratings', ratingRoutes); 
+app.use('/api/trending', trendingRoutes); 
 
 const axios = require("axios"); // Ensure axios is installed
 

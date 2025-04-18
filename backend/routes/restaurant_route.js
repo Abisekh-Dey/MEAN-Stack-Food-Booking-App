@@ -11,6 +11,7 @@ router.post('/estimate-delivery-time', restaurantController.estimateDeliveryTime
 // router.post('/', restaurantController.createRestaurant);
 router.post('/login', restaurantController.login);
 router.post("/getRestaurantsByIds", restaurantController.getRestaurantsByIds);
+router.post('/:restaurantId/message', restaurantController.sendUserMessage);
 router.get('/', restaurantController.getRestaurants);
 router.get('/:id', restaurantController.getRestaurantById);
 router.put('/:id', restaurantController.updateRestaurant);

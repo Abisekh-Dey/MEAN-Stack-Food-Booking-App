@@ -666,3 +666,33 @@ exports.closeAllRestaurants = async (req, res) => {
         res.status(500).json({ message: "Server error", error });
     }
 };
+
+// Send a message from user to restaurant
+exports.sendUserMessage = async (req, res) => {
+    try {
+        const { restaurantId } = req.params;
+        const { userId, message } = req.body;
+        console.log(req.body);
+
+        if (!userId || !message) {
+            return res.status(400).json({ message: 'User ID and message are required.' });
+        }
+
+        const restaurant = await Restaurant.findById(restaurantId);
+        if (!restaurant) {
+            return res.status(404).json({ message: 'Restaurant not found.' });
+        }
+
+        restaurant.userMessages.push({
+            userId,
+            message
+        });
+
+        await restaurant.save();
+
+        res.status(200).json({ message: 'Message sent successfully.' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Something went wrong.' });
+    }
+};

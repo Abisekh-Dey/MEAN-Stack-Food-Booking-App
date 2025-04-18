@@ -20,6 +20,21 @@ const restaurantSchema = new Schema({
     opening_time: { type: String, required: true },
     closing_time: { type: String, required: true },
     closing_day: { type: String, enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'None'], default: 'None' },
+    userMessages: [{
+        userId: { type: Schema.Types.ObjectId, ref: 'User' },
+        message: { type: String },
+        time: { type: Date, default: Date.now },
+        settled: { type: Boolean, default: false }
+    }],
+    adminMessages: [{
+        message: { type: String },
+        time: { type: Date, default: Date.now }
+    }],
+    revenue: [{
+        amount: { type: Number },
+        time: { type: Date, default: Date.now }
+    }],
+    discount: { type: Number, default: 0 },
     isApproved: { type: String, default: "false" },
     closeRestaurant: { type: Boolean, default: false},
     image_number: { type: Number, default:0}
